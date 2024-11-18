@@ -9,7 +9,7 @@ from src.models.Optimizer import Adam, Momentum, GradientDescent
 if __name__ == "__main__":
 
     # Load the data
-    df = pd.read_csv('./input/xor.csv')
+    df = pd.read_csv('./input/perceptronTesting/xor.csv')
     X = df[['x1', 'x2']].values
     y = df['y'].values.reshape(-1, 1)
 

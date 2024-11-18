@@ -66,8 +66,8 @@ class MultiLayerPerceptron:
                 avg_loss = total_loss / len(X)
                 print(f"Epoch {epoch}, Average Loss: {avg_loss}")
     
-    def predict(self, X):
-        return np.array([self.feed_forward(x) for x in X])
+    def predict(self, x):
+        return self.feed_forward(x)
     
     @staticmethod
     def mse(y_true, y_pred):
