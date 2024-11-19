@@ -44,3 +44,22 @@ class Tanh(ActivationFunction):
             output_min, output_max = self.output_range
             result *= (output_max - output_min)
         return result
+
+class Sigmoid(ActivationFunction):
+    def forward(self, x):
+        # Normalize the input and apply the sigmoid function
+        x_norm = self.normalize(x)
+        result = 1 / (1 + np.exp(-x_norm))  # Sigmoid function
+        return self.denormalize(result)
+
+    def derivative(self, x):
+        # Sigmoid derivative: sigmoid(x) * (1 - sigmoid(x))
+        x_norm = self.normalize(x)
+        sigmoid_output = 1 / (1 + np.exp(-x_norm))
+        result = sigmoid_output * (1 - sigmoid_output)
+
+        # Adjust for the output range
+        if self.output_range:
+            output_min, output_max = self.output_range
+            result *= (output_max - output_min)
+        return result
