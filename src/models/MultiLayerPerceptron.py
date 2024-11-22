@@ -40,32 +40,48 @@ class MultiLayerPerceptron:
                 delta = np.dot(weights.T, delta) * self.activation_function(layer.inputs, derivative=True)
         
         return weight_gradients, bias_gradients
-    
+
     def train(self, X, y, epochs=1000, batch_size=32):
         for epoch in range(epochs):
             total_loss = 0
-            
+
+            indices = np.arange(len(X))
+            np.random.shuffle(indices)
+            X, y = X[indices], y[indices]
+
             for i in range(0, len(X), batch_size):
                 batch_X = X[i:i + batch_size]
                 batch_y = y[i:i + batch_size]
-                
+
+                batch_weight_gradients = [np.zeros_like(layer.get_weights()) for layer in self.layers]
+                batch_bias_gradients = [np.zeros_like(layer.get_biases()) for layer in self.layers]
+
                 for x_sample, y_sample in zip(batch_X, batch_y):
                     weight_gradients, bias_gradients = self.backpropagation(x_sample, y_sample)
-                    
-                    for layer_idx, (layer, weight_grad, bias_grad) in enumerate(zip(self.layers, weight_gradients, bias_gradients)):
-                        new_weights = self.optimizer.update(layer.get_weights(), weight_grad, f"w{layer_idx}")
-                        new_biases = self.optimizer.update(layer.get_biases(), bias_grad, f"b{layer_idx}")
-                        
-                        layer.update_weights(new_weights)
-                        layer.update_biases(new_biases)
-                    
-                    prediction = self.feed_forward(x_sample)
-                    total_loss += self.mse(y_sample, prediction)
-            
+                    for layer_idx, (w_grad, b_grad) in enumerate(zip(weight_gradients, bias_gradients)):
+                        batch_weight_gradients[layer_idx] += w_grad
+                        batch_bias_gradients[layer_idx] += b_grad
+
+                for layer_idx in range(len(self.layers)):
+                    batch_weight_gradients[layer_idx] /= len(batch_X)
+                    batch_bias_gradients[layer_idx] /= len(batch_X)
+
+                for layer_idx, layer in enumerate(self.layers):
+                    new_weights = self.optimizer.update(layer.get_weights(), batch_weight_gradients[layer_idx],
+                                                        f"w{layer_idx}")
+                    new_biases = self.optimizer.update(layer.get_biases(), batch_bias_gradients[layer_idx],
+                                                       f"b{layer_idx}")
+                    layer.update_weights(new_weights)
+                    layer.update_biases(new_biases)
+
+                predictions = np.array([self.feed_forward(x_sample) for x_sample in batch_X])
+                batch_loss = np.mean([self.mse(y_true, y_pred) for y_true, y_pred in zip(batch_y, predictions)])
+                total_loss += batch_loss
+
+            avg_loss = total_loss / (len(X) // batch_size)
             if epoch % 100 == 0:
-                avg_loss = total_loss / len(X)
                 print(f"Epoch {epoch}, Average Loss: {avg_loss}")
-    
+
     def predict(self, x):
         return self.feed_forward(x)
     
