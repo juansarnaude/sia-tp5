@@ -40,7 +40,7 @@ if __name__ == "__main__":
 
     # Create and train the autoencoder
     mlp = MultiLayerPerceptron(layers, activation, optimizer)
-    mlp.train(X, X, epochs=10000, batch_size=32)  # Train with batch size of 32 for stability and efficiency
+    mlp.train(X, X, epochs=25000, batch_size=32)  # Train with batch size of 32 for stability and efficiency
 
     predictions = []
     total_pixel_loss = 0
