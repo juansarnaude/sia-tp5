@@ -33,17 +33,17 @@ class ActivationFunction(ABC):
 
 class Tanh(ActivationFunction):
     def forward(self, x):
-        x_norm = self.normalize(x)
-        result = np.tanh(x_norm)
-        return self.denormalize(result)
+        #x_norm = self.normalize(x)
+        result = np.tanh(0.5 * x)
+        return result
     
     def derivative(self, x):
-        x_norm = self.normalize(x)
-        result = 1 - np.tanh(x_norm)**2
-        if self.output_range:
-            output_min, output_max = self.output_range
-            result *= (output_max - output_min)
-        return result
+        #x_norm = self.normalize(x)
+        result = 1 - np.tanh(0.5 * x)**2
+        # if self.output_range:
+        #     output_min, output_max = self.output_range
+        #     result *= (output_max - output_min)
+        return 0.5 * result
 
 class Sigmoid(ActivationFunction):
     def forward(self, x):

@@ -4,7 +4,7 @@ import numpy as np
 
 from src.models.MultiLayerPerceptron import MultiLayerPerceptron
 from src.models.ActivationFunction import Tanh, Sigmoid
-from src.models.Optimizer import Adam, Momentum, GradientDescent
+from src.models.Optimizer import Adam
 from src.utils.font import parse_h_file_to_numpy, to_bin_array
 from src.utils.normalize import zeroOrOne
 
@@ -35,27 +35,27 @@ if __name__ == "__main__":
     X = parse_input("./input/font.h")
 
     activation = Tanh(input_range=(0, 1), output_range=(0, 1))
-    optimizer = Adam(learning_rate=0.001)
-    layers = [35, 20, 2, 20, 35]
+    optimizer = Adam(learning_rate=0.0001)
+    layers = [35, 10, 2, 10, 35]
 
     mlp = MultiLayerPerceptron(layers, activation, optimizer)
 
-    batch_size = 5
+    batch_size = 10
     training_batches = generate_batches(X, batch_size)
 
-    mlp.train(training_batches, training_batches, 1000)
+    mlp.train(training_batches, training_batches, 3000)
 
     # Test the model
     predictions = []
     total_pixel_loss = 0
 
-    for input in X:
-        predicted = zeroOrOne(mlp.predict(input))
-        predictions.append(predicted)
-
-        for predicted_pixel, input_pixel in zip(predicted, input):
-            if predicted_pixel != input_pixel:
-                total_pixel_loss += 1
+    # for input in X:
+    #     predicted = zeroOrOne(mlp.predict(input))
+    #     predictions.append(predicted)
+    #
+    #     for predicted_pixel, input_pixel in zip(predicted, input):
+    #         if predicted_pixel != input_pixel:
+    #             total_pixel_loss += 1
 
     # for prediction, input in zip(predictions, X):
     #     print('-' * 40)
