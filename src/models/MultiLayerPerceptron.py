@@ -74,13 +74,11 @@ class MultiLayerPerceptron:
                     layer.update_weights(new_weights)
                     layer.update_biases(new_biases)
 
-                predictions = np.array([self.feed_forward(x_sample) for x_sample in batch_X])
-                batch_loss = np.mean([self.mse(y_true, y_pred) for y_true, y_pred in zip(batch_y, predictions)])
-                total_loss += batch_loss
 
-            avg_loss = total_loss / (len(X) // batch_size)
             if epoch % 100 == 0:
-                print(f"Epoch {epoch}, Average Loss: {avg_loss}")
+                predictions = np.array([self.feed_forward(x_sample) for x_sample in X])
+                total_loss = np.mean([self.mse(y_true, y_pred) for y_true, y_pred in zip(y, predictions)])
+                print(f"Epoch {epoch}, Average Loss: {total_loss}")
 
     def predict(self, x):
         return self.feed_forward(x)

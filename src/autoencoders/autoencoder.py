@@ -29,15 +29,15 @@ if __name__ == "__main__":
     # Create and configure the network
     # Adjusted autoencoder configuration with an input shape of 35
     activation = Tanh(input_range=(0, 1), output_range=(0, 1))  # Tanh works well if your data is normalized between -1 and 1
-    optimizer = Adam(learning_rate=0.0005)  # Lower learning rate for stability
+    optimizer = Adam(learning_rate=0.001)  # Lower learning rate for stability
 
     # Layer sizes based on input shape of 35
-    layer_sizes = [35, 20, 2] # Example layer sizes, decreasing towards the bottleneck layer (latent representation)
+    layer_sizes = [35, 10] # Example layer sizes, decreasing towards the bottleneck layer (latent representation)
     layers = layer_sizes + layer_sizes[::-1][1:]  # Symmetric architecture, avoid duplicating the bottleneck layer
 
     # Create and train the autoencoder
     mlp = MultiLayerPerceptron(layers, activation, optimizer)
-    mlp.train(X, X, epochs=10000, batch_size=10)  # Train with batch size of 32 for stability and efficiency
+    mlp.train(X, X, epochs=10000, batch_size=32)  # Train with batch size of 32 for stability and efficiency
 
     predictions = []
     total_pixel_loss = 0
