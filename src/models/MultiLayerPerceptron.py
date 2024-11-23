@@ -28,7 +28,6 @@ class MultiLayerPerceptron:
         
         for i in range(len(self.layers) - 1, -1, -1):
             layer = self.layers[i]
-            
             weight_grad = np.outer(delta, layer.inputs)
             bias_grad = delta
             
@@ -79,6 +78,26 @@ class MultiLayerPerceptron:
                 predictions = np.array([self.feed_forward(x_sample) for x_sample in X])
                 total_loss = np.mean([self.mse(y_true, y_pred) for y_true, y_pred in zip(y, predictions)])
                 print(f"Epoch {epoch}, Average Loss: {total_loss}")
+
+    def update_weights(self, gradients, epoch):
+        weight_gradients, bias_gradients = gradients
+
+        for layer_idx, layer in enumerate(self.layers):
+            new_weights = self.optimizer.update(
+                layer.get_weights(),
+                weight_gradients[layer_idx],
+                f"weights_layer_{layer_idx}",
+                epoch=epoch
+            )
+            layer.update_weights(new_weights)
+
+            new_biases = self.optimizer.update(
+                layer.get_biases(),
+                bias_gradients[layer_idx],
+                f"biases_layer_{layer_idx}",
+                epoch=epoch
+            )
+            layer.update_biases(new_biases)
 
     def predict(self, x):
         return self.feed_forward(x)
