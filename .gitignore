@@ -6,3 +6,5 @@
 /src/test/__pycache__
 /src/autoencoders/__pycache__
 /src/utils/__pycache__
+/src/plot/__pycache__
+output/total_loss_per_epoch.csv
