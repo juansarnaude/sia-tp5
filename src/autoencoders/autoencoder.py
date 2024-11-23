@@ -24,8 +24,19 @@ def parse_input(input_file_path: str):
 
     return characters
 
-def get_encoder(mlp: MultiLayerPerceptron, size: int):
-    return mlp.layers[:size]
+def get_encoder(mlp, layer_sizes):
+    encoder_layers = layer_sizes[:layer_sizes.index(2) + 1]  # Hasta la capa de 2 neuronas (espacio latente)
+    encoder = MultiLayerPerceptron(encoder_layers, mlp.activation_function, mlp.optimizer)
+    encoder.weights = mlp.weights[:len(encoder_layers) - 1]
+    encoder.biases = mlp.biases[:len(encoder_layers) - 1]
+    return encoder
+
+def get_decoder(mlp, layer_sizes):
+    decoder_layers = layer_sizes[layer_sizes.index(2):]  # Desde la capa de 2 neuronas en adelante
+    decoder = MultiLayerPerceptron(decoder_layers, mlp.activation_function, mlp.optimizer)
+    decoder.weights = mlp.weights[len(layer_sizes) - len(decoder_layers):-1]
+    decoder.biases = mlp.biases[len(layer_sizes) - len(decoder_layers):-1]
+    return decoder
 
 if __name__ == "__main__":
     X = parse_input("./input/font.h")
@@ -68,7 +79,6 @@ if __name__ == "__main__":
             # Escribir cada fila de la matriz en el archivo CSV
             for row in matrix:
                 file.write(",".join(f"{value}" for value in row) + "\n")
-
 
 
     print("Total pixels: ", len(X)*len(X[0]) , " Correct: ", len(X)*len(X[0])-total_pixel_loss, " Incorrect: ",
