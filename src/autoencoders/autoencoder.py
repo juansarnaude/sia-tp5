@@ -25,17 +25,15 @@ def parse_input(input_file_path: str):
     return characters
 
 def get_encoder(mlp, layer_sizes):
-    encoder_layers = layer_sizes[:layer_sizes.index(2) + 1]  # Hasta la capa de 2 neuronas (espacio latente)
+    encoder_layers = layer_sizes[:2 + 1]  # Hasta la capa de 2 neuronas (espacio latente)
     encoder = MultiLayerPerceptron(encoder_layers, mlp.activation_function, mlp.optimizer)
-    encoder.weights = mlp.weights[:len(encoder_layers) - 1]
-    encoder.biases = mlp.biases[:len(encoder_layers) - 1]
+    encoder.layers = mlp.layers[:len(encoder_layers) - 1]
     return encoder
 
 def get_decoder(mlp, layer_sizes):
-    decoder_layers = layer_sizes[layer_sizes.index(2):]  # Desde la capa de 2 neuronas en adelante
+    decoder_layers = layer_sizes[2:]  # Desde la capa de 2 neuronas en adelante
     decoder = MultiLayerPerceptron(decoder_layers, mlp.activation_function, mlp.optimizer)
-    decoder.weights = mlp.weights[len(layer_sizes) - len(decoder_layers):-1]
-    decoder.biases = mlp.biases[len(layer_sizes) - len(decoder_layers):-1]
+    decoder.layers = mlp.layers[len(layer_sizes) - len(decoder_layers):-1]
     return decoder
 
 if __name__ == "__main__":
@@ -73,6 +71,7 @@ if __name__ == "__main__":
         total_pixel_loss += pixel_loss
         print(pixel_loss)
 
+    #Predictions
     predictions_matrix = [np.reshape(array, (7, 5)) for array in predictions]
     with open(f"./output/characters_matrix_autoencoder.csv", "w") as file:
         for matrix in predictions_matrix:
@@ -80,6 +79,17 @@ if __name__ == "__main__":
             for row in matrix:
                 file.write(",".join(f"{value}" for value in row) + "\n")
 
+    #EJ3 Vemos las coordenadas del encoder
+    encoder=get_encoder(mlp,layer_sizes)
+
+    latent_predictions = []
+    for input in X:
+        latent_predictions.append(encoder.predict(input))
+
+    with open(f"./output/latent_predictions_autoencoder.csv", "w") as file:
+        file.write("x,y\n")
+        for latent_prediction in latent_predictions:
+            file.write(",".join(map(str, latent_prediction)) + "\n")
 
     print("Total pixels: ", len(X)*len(X[0]) , " Correct: ", len(X)*len(X[0])-total_pixel_loss, " Incorrect: ",
           total_pixel_loss, " Error %: ", 100*total_pixel_loss/(len(X)*len(X[0])))
