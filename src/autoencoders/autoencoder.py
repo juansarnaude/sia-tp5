@@ -23,6 +23,10 @@ def parse_input(input_file_path: str):
         characters = np.vstack([characters, np.array(to_bin_array(character)).flatten()])
 
     return characters
+
+def get_encoder(mlp: MultiLayerPerceptron, size: int):
+    return mlp.layers[:size]
+
 if __name__ == "__main__":
     X = parse_input("./input/font.h")
 
