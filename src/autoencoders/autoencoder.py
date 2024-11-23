@@ -40,7 +40,7 @@ if __name__ == "__main__":
 
     # Create and train the autoencoder
     mlp = MultiLayerPerceptron(layers, activation, optimizer)
-    mlp.train(X, X, epochs=25000, batch_size=32)  # Train with batch size of 32 for stability and efficiency
+    mlp.train(X, X, epochs=19300, batch_size=32)  # Train with batch size of 32 for stability and efficiency
 
     predictions = []
     total_pixel_loss = 0
@@ -58,7 +58,7 @@ if __name__ == "__main__":
         total_pixel_loss += pixel_loss
         print(pixel_loss)
 
-
+    predictions_matrix = [np.reshape(array, (7, 5)) for array in predictions]
     print("--------------------")
     print("Total pixels: ", len(X)*len(X[0]) , " Correct: ", len(X)*len(X[0])-total_pixel_loss, " Incorrect: ",
           total_pixel_loss, " Error %: ", 100*total_pixel_loss/(len(X)*len(X[0])))
