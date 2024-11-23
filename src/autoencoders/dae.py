@@ -74,6 +74,12 @@ if __name__ == "__main__":
         total_pixel_loss += pixel_loss
         print(pixel_loss)
 
+    predictions_matrix = [np.reshape(array, (7, 5)) for array in predictions]
+    with open(f"./output/characters_matrix_dae.csv", "w") as file:
+        for matrix in predictions_matrix:
+            # Escribir cada fila de la matriz en el archivo CSV
+            for row in matrix:
+                file.write(",".join(f"{value}" for value in row) + "\n")
 
     print("--------------------")
     print("Total pixels: ", len(X)*len(X[0]) , " Correct: ", len(X)*len(X[0])-total_pixel_loss, " Incorrect: ",
