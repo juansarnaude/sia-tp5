@@ -8,3 +8,4 @@
 /src/utils/__pycache__
 /src/plot/__pycache__
 output/total_loss_per_epoch.csv
+/output/

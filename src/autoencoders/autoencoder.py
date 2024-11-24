@@ -33,7 +33,7 @@ def get_encoder(mlp, layer_sizes):
 def get_decoder(mlp, layer_sizes):
     decoder_layers = layer_sizes[2:]  # Desde la capa de 2 neuronas en adelante
     decoder = MultiLayerPerceptron(decoder_layers, mlp.activation_function, mlp.optimizer)
-    decoder.layers = mlp.layers[len(layer_sizes) - len(decoder_layers):-1]
+    decoder.layers = mlp.layers[len(decoder_layers) - 1:]
     return decoder
 
 if __name__ == "__main__":
@@ -80,7 +80,7 @@ if __name__ == "__main__":
                 file.write(",".join(f"{value}" for value in row) + "\n")
 
     #EJ3 Vemos las coordenadas del encoder
-    encoder=get_encoder(mlp,layer_sizes)
+    encoder=get_encoder(mlp,layers)
 
     latent_predictions = []
     for input in X:
@@ -90,6 +90,25 @@ if __name__ == "__main__":
         file.write("x,y\n")
         for latent_prediction in latent_predictions:
             file.write(",".join(map(str, latent_prediction)) + "\n")
+
+    #Ej4 Vamos a hacer un nuevo Character con un punto x,y
+    decoder=get_decoder(mlp,layers)
+
+    decoder_predictions=[]
+    x_y_coordinates=[[0,0.6796087]]
+    for x_y in x_y_coordinates:
+        decoder_predictions.append(zeroOrOne(decoder.predict(x_y)))
+
+
+    decoder_predictions_matrix = [np.reshape(array, (7, 5)) for array in decoder_predictions]
+
+
+    with open(f"./output/new_characters_autoencoder.csv", "w") as file:
+        for matrix in decoder_predictions_matrix:
+            # Escribir cada fila de la matriz en el archivo CSV
+            for row in matrix:
+                file.write(",".join(f"{value}" for value in row) + "\n")
+
 
     print("Total pixels: ", len(X)*len(X[0]) , " Correct: ", len(X)*len(X[0])-total_pixel_loss, " Incorrect: ",
           total_pixel_loss, " Error %: ", 100*total_pixel_loss/(len(X)*len(X[0])))
