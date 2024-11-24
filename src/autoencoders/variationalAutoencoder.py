@@ -2,21 +2,20 @@ import numpy as np
 from src.models.MultiLayerPerceptron import MultiLayerPerceptron
 
 class VariationalAutoencoder:
-    def __init__(self, latent_dim, encoder_layers, decoder_layers, activation, optimizer):
+    def __init__(self, latent_dim, encoder_layers, decoder_layers, activation, optimizer1, optimizer2):
         self.latent_dim = latent_dim
         self.activation = activation
-        self.optimizer = optimizer
 
         self.encoder = MultiLayerPerceptron(
             encoder_layers + [2 * latent_dim],
             activation,
-            optimizer,
+            optimizer1,
         )
 
         self.decoder = MultiLayerPerceptron(
             [latent_dim] + decoder_layers,
             activation,
-            optimizer,
+            optimizer2,
         )
 
     def reparameterize(self, mean, log_var):
@@ -120,9 +119,7 @@ class VariationalAutoencoder:
                     for g1, g2 in zip(encoder_kl_biases_gradients, encoder_reconstruction_gradients_biases)
                 ]
 
-                print("Encoder update:")
                 self.encoder.update_weights(encoder_weight_gradients, encoder_biases_gradients)
-                print("Decoder update:")
                 self.decoder.update_weights(decoder_weight_gradients, decoder_bias_gradients)
 
                 z_list.append(current_z)

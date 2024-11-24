@@ -13,7 +13,8 @@ latent_dim = 2
 encoder_layers = [35, 20, 5]
 decoder_layers = [5, 20, 35]
 activation = Tanh(input_range=(0, 1), output_range=(0, 1))
-optimizer = Adam(learning_rate=0.001)
+optimizer1 = Adam(learning_rate=0.001)
+optimizer2 = Adam(learning_rate=0.001)
 
 # Instantiate the model
 vae = VariationalAutoencoder(
@@ -21,7 +22,8 @@ vae = VariationalAutoencoder(
     encoder_layers=encoder_layers,
     decoder_layers=decoder_layers,
     activation=activation,
-    optimizer=optimizer,
+    optimizer1=optimizer1,
+    optimizer2=optimizer2,
 )
 
 # Train the model
