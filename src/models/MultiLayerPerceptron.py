@@ -18,7 +18,40 @@ class MultiLayerPerceptron:
         for layer in self.layers:
             current_output = layer.forward(current_output)
         return current_output
-    
+
+    def backpropagation_vae(self, layer_output_error):
+        # Initialize accumulators for weight and bias gradients
+        total_weight_gradients = [np.zeros_like(layer.get_weights()) for layer in self.layers]
+        total_bias_gradients = [np.zeros_like(layer.get_biases()) for layer in self.layers]
+
+        # Process each error in the batch
+        for error in layer_output_error:
+            delta = error
+            weight_gradients = []
+            bias_gradients = []
+
+            for i in range(len(self.layers) - 1, -1, -1):
+                layer = self.layers[i]
+
+                weight_grad = np.outer(delta, layer.inputs)
+                bias_grad = delta
+
+                weight_gradients.insert(0, weight_grad)
+                bias_gradients.insert(0, bias_grad)
+
+                if i > 0:
+                    weights = layer.get_weights()
+                    delta = np.dot(weights.T, delta) * self.activation_function(layer.inputs, derivative=True)
+
+            for i in range(len(self.layers)):
+                total_weight_gradients[i] += weight_gradients[i]
+                total_bias_gradients[i] += bias_gradients[i]
+
+        total_weight_gradients = [wg / len(layer_output_error) for wg in total_weight_gradients]
+        total_bias_gradients = [bg / len(layer_output_error) for bg in total_bias_gradients]
+
+        return total_weight_gradients, total_bias_gradients
+
     def backpropagation(self, inputs, targets):
         outputs = self.feed_forward(inputs)
         output_error = outputs - targets

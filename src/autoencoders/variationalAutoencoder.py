@@ -39,8 +39,8 @@ class VariationalAutoencoder:
             for i in range(0, len(X), batch_size):
                 batch = X[i:i + batch_size]
 
-                batch_mean = 0
-                batch_log_var = 0
+                batch_means_list = []
+                batch_log_var_list = []
                 reconstructed_batch = []
 
                 current_z = []
@@ -52,8 +52,8 @@ class VariationalAutoencoder:
                     log_var = encoded[len(encoded) // 2:]
 
 
-                    batch_mean += mean
-                    batch_log_var += log_var
+                    batch_means_list.append(mean)
+                    batch_log_var_list.append(log_var)
 
                     z, epsilon = self.reparameterize(mean, log_var)
 
@@ -62,8 +62,8 @@ class VariationalAutoencoder:
                     reconstructed = self.decoder.feed_forward(z)
                     reconstructed_batch.append(reconstructed)
 
-                batch_mean /= len(batch)
-                batch_log_var /= len(batch)
+                batch_mean = np.mean(batch_means_list)  #TODO THIS MAY BE WRONG
+                batch_log_var = np.mean(batch_log_var_list)
 
                 reconstructed_batch = np.vstack(reconstructed_batch)
 
@@ -94,29 +94,32 @@ class VariationalAutoencoder:
 
                 decoder_last_delta = error_decoder * self.decoder.activation_function(reconstructed_batch, derivative=True)
 
-                # TODO IT SEEMS TO WORK UNTIL HERE
+                dz_dmean = np.ones_like(batch_means_list)
+                dz_dstd = epsilon * np.ones_like(batch_means_list)
 
-                dz_dmean = np.ones_like(batch_mean)
-                dz_dstd = epsilon * np.ones_like(
-                    batch_mean)
 
-                mean_error = np.dot(decoder_last_delta, dz_dmean.T)
-                std_error = np.dot(decoder_last_delta, dz_dstd.T)
+                mean_error = np.dot(decoder_last_delta.T, dz_dmean)
+                std_error = np.dot(decoder_last_delta.T, dz_dstd)
 
                 encoder_reconstruction_error = np.concatenate((mean_error, std_error), axis=1)
 
-                encoder_reconstruction_gradients, _ = self.encoder.backpropagation(encoder_reconstruction_error)
+                # TODO IT SEEMS TO WORK UNTIL HERE
 
-                dL_dm = batch_mean
-                dL_dv = 0.5 * (np.exp(batch_log_var) - 1)
+                encoder_reconstruction_gradients_weights, encoder_reconstruction_gradients_biases = self.encoder.backpropagation_vae(encoder_reconstruction_error)
+
+                encoder_reconstruction_gradients = (encoder_reconstruction_gradients_weights, encoder_reconstruction_gradients_biases)
+
+                dL_dm = batch_means_list
+                dL_dv = 0.5 * (np.exp(batch_log_var_list) - 1)
 
                 encoder_kl_error = np.concatenate((dL_dm, dL_dv), axis=1)
-                encoder_kl_gradients, _ = self.encoder.backpropagation(encoder_kl_error)
+                encoder_kl_gradients, _ = self.encoder.backpropagation_vae(encoder_kl_error)
 
                 encoder_weight_gradients = [
                     g1 + g2
                     for g1, g2 in zip(encoder_kl_gradients, encoder_reconstruction_gradients)
                 ]
+
 
                 self.encoder.update_weights(encoder_weight_gradients, epoch)
                 self.decoder.update_weights(decoder_weight_gradients, epoch)
