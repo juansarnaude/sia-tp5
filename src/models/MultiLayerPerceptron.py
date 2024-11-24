@@ -117,7 +117,7 @@ class MultiLayerPerceptron:
                     print(f"Epoch {epoch}, Average Loss: {total_loss}")
                     file.write(f"{epoch},{total_loss}\n")
 
-    def update_weights(self, wg, bg)
+    def update_weights(self, wg, bg):
         weight_gradients = wg
         bias_gradients = bg
 
