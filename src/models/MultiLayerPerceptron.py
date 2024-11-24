@@ -117,12 +117,20 @@ class MultiLayerPerceptron:
                     print(f"Epoch {epoch}, Average Loss: {total_loss}")
                     file.write(f"{epoch},{total_loss}\n")
 
-    def update_weights(self, gradients):
-        weight_gradients, bias_gradients = reversed(gradients)
+    def update_weights(self, wg, bg)
+        weight_gradients = wg
+        bias_gradients = bg
+
+        print("Weight gradients shapes:")
+        for i, grad in enumerate(weight_gradients):
+            print(f"Layer {i}: {grad.shape}")
+
+        print("Bias gradients shapes:")
+        for i, grad in enumerate(bias_gradients):
+            print(f"Layer {i}: {grad.shape}")
 
         for layer_idx, layer in enumerate(self.layers):
-            if layer_idx == 0:
-                return
+            print(layer_idx)
             new_weights = self.optimizer.update(
                 layer.get_weights(),
                 weight_gradients[layer_idx],

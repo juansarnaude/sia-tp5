@@ -108,15 +108,22 @@ class VariationalAutoencoder:
                 dL_dm = batch_means_list
                 dL_dv = 0.5 * (np.exp(batch_log_var_list) - 1)
                 encoder_kl_error = np.concatenate((dL_dm, dL_dv), axis=1)
-                encoder_kl_gradients, _ = self.encoder.backpropagation_vae(encoder_kl_error)
+                encoder_kl_gradients, encoder_kl_biases_gradients = self.encoder.backpropagation_vae(encoder_kl_error)
 
                 encoder_weight_gradients = [
                     g1 + g2
                     for g1, g2 in zip(encoder_kl_gradients, encoder_reconstruction_gradients_weights)
                 ]
 
-                self.encoder.update_weights(encoder_weight_gradients)
-                self.decoder.update_weights(decoder_weight_gradients)
+                encoder_biases_gradients = [
+                    g1 + g2
+                    for g1, g2 in zip(encoder_kl_biases_gradients, encoder_reconstruction_gradients_biases)
+                ]
+
+                print("Encoder update:")
+                self.encoder.update_weights(encoder_weight_gradients, encoder_biases_gradients)
+                print("Decoder update:")
+                self.decoder.update_weights(decoder_weight_gradients, decoder_bias_gradients)
 
                 z_list.append(current_z)
 
