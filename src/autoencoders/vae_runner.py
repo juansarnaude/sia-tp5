@@ -9,7 +9,7 @@ from src.models.ActivationFunction import Tanh
 X = parse_input("./input/font.h")
 
 # Hyperparameters
-latent_dim = 1
+latent_dim = 2
 encoder_layers = [35, 20, 5]
 decoder_layers = [5, 20, 35]
 activation = Tanh(input_range=(0, 1), output_range=(0, 1))
@@ -42,6 +42,7 @@ print("Generated Sample:", generated_sample)
 # Encode some input data
 for i in range(10):# Encode the first 10 samples
     mu, log_var = vae.encode(X[i])
+    print("X:",X[i])
     print("Latent Space Mean:", mu)
     print("Latent Space Log Variance:", log_var)
 

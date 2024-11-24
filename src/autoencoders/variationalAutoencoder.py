@@ -135,8 +135,9 @@ class VariationalAutoencoder:
     def encode(self, X):
         encoded = self.encoder.feed_forward(X)
 
-        # Dividir en mu, log_var y extras
-        mu, log_var = encoded[0],encoded[1]
+        mu = encoded[: len(encoded) // 2]
+        log_var = encoded[len(encoded) // 2:]
+
         return mu, log_var
 
     def decode(self, z):
