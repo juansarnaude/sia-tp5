@@ -134,7 +134,9 @@ class VariationalAutoencoder:
 
     def encode(self, X):
         encoded = self.encoder.feed_forward(X)
-        mu, log_var = np.split(encoded, 2, axis=1)
+
+        # Dividir en mu, log_var y extras
+        mu, log_var = encoded[0],encoded[1]
         return mu, log_var
 
     def decode(self, z):
