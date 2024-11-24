@@ -27,8 +27,13 @@ vae = VariationalAutoencoder(
 # Train the model
 vae.train(X, epochs=1000, batch_size=32)
 
+print("Finished Execution")
+print("-------------------------")
+
+
 # Generate new data
 z_sample = np.random.rand(1, latent_dim)  # Random latent vector
+
 generated_sample = vae.generate(z_sample)
 print("Generated Sample:", generated_sample)
 
