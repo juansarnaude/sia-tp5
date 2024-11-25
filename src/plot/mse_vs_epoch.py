@@ -2,7 +2,7 @@ import pandas as pd
 import plotly.graph_objects as go
 
 # Load the CSV file into a pandas DataFrame
-csv_file = "./output/total_loss_per_epoch.csv"  # Replace with the path to your CSV file
+csv_file = "./output/mse_vs_epoch.csv"  # Replace with the path to your CSV file
 data = pd.read_csv(csv_file)
 
 # Create a line plot for epoch vs average_loss using Plotly

@@ -1,0 +1,7 @@
+{
+    "output_file_name":"mse_vs_epoch",
+    "layers":[20],
+    "learning_rate":0.0005,
+    "epochs":19300,
+    "batching_size":32
+}

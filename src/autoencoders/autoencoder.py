@@ -37,78 +37,87 @@ def get_decoder(mlp, layer_sizes):
     return decoder
 
 if __name__ == "__main__":
-    X = parse_input("./input/font.h")
 
-    # Create and configure the network
-    # Adjusted autoencoder configuration with an input shape of 35
-    activation = Tanh(input_range=(0, 1), output_range=(0, 1))  # Tanh works well if your data is normalized between -1 and 1
-    optimizer = Adam(learning_rate=0.0005)  # Lower learning rate for stability
+    with open("./config/config_autoencoder.json", 'r') as file:
+        config = json.load(file)
 
+        n = config["learning_rate"]
+        inner_layers = config["layers"]
+        epochs = config["epochs"]
+        output_file_name = config["output_file_name"]
 
-    # Layer sizes based on input shape of 35
+        X = parse_input("./input/font.h")
 
-    # Layer sizes based on input shape of 35
-    layer_sizes = [35, 20, 2]
-    layers = layer_sizes + layer_sizes[::-1][1:]  # Symmetric architecture, avoid duplicating the bottleneck layer
-
-    # Create and train the autoencoder
-    mlp = MultiLayerPerceptron(layers, activation, optimizer)
-    mlp.train(X, X, epochs=19300, batch_size=32)  # Train with batch size of 32 for stability and efficiency
-
-    predictions = []
-    total_pixel_loss = 0
-
-    for input in X:
-        predictions.append(zeroOrOne(mlp.predict(input)))
-
-    for prediction, input in zip(predictions, X):
-        pixel_loss = 0
-
-        for position, x in zip(prediction, input):
-            if position != x:
-                pixel_loss += 1
-
-        total_pixel_loss += pixel_loss
-        print(pixel_loss)
-
-    #Predictions
-    predictions_matrix = [np.reshape(array, (7, 5)) for array in predictions]
-    with open(f"./output/characters_matrix_autoencoder.csv", "w") as file:
-        for matrix in predictions_matrix:
-            # Escribir cada fila de la matriz en el archivo CSV
-            for row in matrix:
-                file.write(",".join(f"{value}" for value in row) + "\n")
-
-    #EJ3 Vemos las coordenadas del encoder
-    encoder=get_encoder(mlp,layers)
-
-    latent_predictions = []
-    for input in X:
-        latent_predictions.append(encoder.predict(input))
-
-    with open(f"./output/latent_predictions_autoencoder.csv", "w") as file:
-        file.write("x,y\n")
-        for latent_prediction in latent_predictions:
-            file.write(",".join(map(str, latent_prediction)) + "\n")
-
-    #Ej4 Vamos a hacer un nuevo Character con un punto x,y
-    decoder=get_decoder(mlp,layers)
-
-    decoder_predictions=[]
-    x_y_coordinates=[[0,0.6796087]]
-    for x_y in x_y_coordinates:
-        decoder_predictions.append(zeroOrOne(decoder.predict(x_y)))
+        # Create and configure the network
+        # Adjusted autoencoder configuration with an input shape of 35
+        activation = Tanh(input_range=(0, 1), output_range=(0, 1))  # Tanh works well if your data is normalized between -1 and 1
+        optimizer = Adam(learning_rate=n)  # Lower learning rate for stability
 
 
-    decoder_predictions_matrix = [np.reshape(array, (7, 5)) for array in decoder_predictions]
+        # Layer sizes based on input shape of 35
+
+        # Layer sizes based on input shape of 35
+        layer_sizes = [35] + inner_layers + [2]
+        layers = layer_sizes + layer_sizes[::-1][1:]  # Symmetric architecture, avoid duplicating the bottleneck layer
+
+        # Create and train the autoencoder
+        mlp = MultiLayerPerceptron(layers, activation, optimizer, output_file_name)
+        mlp.train(X, X, epochs=epochs, batch_size=32)  # Train with batch size of 32 for stability and efficiency
+
+        predictions = []
+        total_pixel_loss = 0
+
+        for input in X:
+            predictions.append(zeroOrOne(mlp.predict(input)))
+
+        for prediction, input in zip(predictions, X):
+            pixel_loss = 0
+
+            for position, x in zip(prediction, input):
+                if position != x:
+                    pixel_loss += 1
+
+            total_pixel_loss += pixel_loss
+            print(pixel_loss)
+
+        #Predictions
+        predictions_matrix = [np.reshape(array, (7, 5)) for array in predictions]
+        with open(f"./output/characters_matrix_autoencoder.csv", "w") as file:
+            for matrix in predictions_matrix:
+                # Escribir cada fila de la matriz en el archivo CSV
+                for row in matrix:
+                    file.write(",".join(f"{value}" for value in row) + "\n")
+
+        #EJ3 Vemos las coordenadas del encoder
+        encoder=get_encoder(mlp,layers)
+
+        latent_predictions = []
+        for input in X:
+            latent_predictions.append(encoder.predict(input))
+
+        with open(f"./output/latent_predictions_autoencoder.csv", "w") as file:
+            file.write("x,y\n")
+            for latent_prediction in latent_predictions:
+                file.write(",".join(map(str, latent_prediction)) + "\n")
+
+        #Ej4 Vamos a hacer un nuevo Character con un punto x,y
+        decoder=get_decoder(mlp,layers)
+
+        decoder_predictions=[]
+        x_y_coordinates=[[0,0.6796087]]
+        for x_y in x_y_coordinates:
+            decoder_predictions.append(zeroOrOne(decoder.predict(x_y)))
 
 
-    with open(f"./output/new_characters_autoencoder.csv", "w") as file:
-        for matrix in decoder_predictions_matrix:
-            # Escribir cada fila de la matriz en el archivo CSV
-            for row in matrix:
-                file.write(",".join(f"{value}" for value in row) + "\n")
+        decoder_predictions_matrix = [np.reshape(array, (7, 5)) for array in decoder_predictions]
 
 
-    print("Total pixels: ", len(X)*len(X[0]) , " Correct: ", len(X)*len(X[0])-total_pixel_loss, " Incorrect: ",
-          total_pixel_loss, " Error %: ", 100*total_pixel_loss/(len(X)*len(X[0])))
+        with open(f"./output/new_characters_autoencoder.csv", "w") as file:
+            for matrix in decoder_predictions_matrix:
+                # Escribir cada fila de la matriz en el archivo CSV
+                for row in matrix:
+                    file.write(",".join(f"{value}" for value in row) + "\n")
+
+
+        print("Total pixels: ", len(X)*len(X[0]) , " Correct: ", len(X)*len(X[0])-total_pixel_loss, " Incorrect: ",
+            total_pixel_loss, " Error %: ", 100*total_pixel_loss/(len(X)*len(X[0])))

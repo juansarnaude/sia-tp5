@@ -5,10 +5,11 @@ from src.models.ActivationFunction import ActivationFunction
 import numpy as np
 
 class MultiLayerPerceptron:
-    def __init__(self, layer_sizes, activation_function: ActivationFunction, optimizer):
+    def __init__(self, layer_sizes, activation_function: ActivationFunction, optimizer, output_file_name=None):
         self.activation_function = activation_function
         self.optimizer = optimizer
         self.layers = []
+        self.output_file_name = output_file_name
         
         for i in range(len(layer_sizes) - 1):
             self.layers.append(Layer(layer_sizes[i], layer_sizes[i + 1], self.activation_function))
@@ -75,7 +76,7 @@ class MultiLayerPerceptron:
         return weight_gradients, bias_gradients
 
     def train(self, X, y, epochs=1000, batch_size=32):
-        with open(f"./output/total_loss_per_epoch.csv", "w") as file:
+        with open(f"./output/{self.output_file_name}.csv", "w") as file:
             file.write("epoch,average_loss\n")
 
             for epoch in range(epochs):
