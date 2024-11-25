@@ -50,7 +50,6 @@ coordinates=[]
 for emoji in dataset_input_list:
     coordinates.append(vae.encode(emoji))
 
-print(coordinates)
 
 with open(f"./output/latent_predictions_vae_emojis.csv", "w") as file:
     file.write("x,y\n")
