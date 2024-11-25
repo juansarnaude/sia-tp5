@@ -6,6 +6,8 @@ from src.autoencoders.variationalAutoencoder import VariationalAutoencoder
 from src.models.Optimizer import Adam
 from src.models.ActivationFunction import Tanh
 from src.autoencoders.emojis import emoji_images,emoji_size,emoji_chars,emoji_names,vector_to_emoji
+import pickle
+from src.autoencoders.emojis import emoji_images,emoji_size,emoji_chars,emoji_names
 
 # Example input data (replace with your actual data)
 X = parse_input("./input/font.h")
@@ -55,21 +57,54 @@ with open(f"./output/latent_predictions_vae_emojis.csv", "w") as file:
     for latent_prediction in coordinates:
         file.write(",".join(map(str, latent_prediction)) + "\n")
 
-# Generate new data
 
+emoji_img_list = []
+emoji_img_coords_list = []
+
+range_min, range_max = -4, 4
+grid_size = 20
+step_size = (range_max - range_min) / grid_size
+
+for x in np.arange(range_min, range_max, step_size):
+    for y in np.arange(range_min, range_max, step_size):
+        z = [x, y]
+        decoded_image = vae.decode(z)
+        emoji_img_list.append(decoded_image)
+        emoji_img_coords_list.append(z)
+
+
+output_data = {
+    "images": emoji_img_list,
+    "coordinates": emoji_img_coords_list,
+}
+
+output_file = "./output/output_data.pkl"
+with open(output_file, "wb") as f:
+    pickle.dump(output_data, f)
+
+print(f"Data saved to {output_file}")
+
+
+
+
+
+
+
+# # Generate new data
+#
 # z_sample = np.random.rand(latent_dim)  # Random latent vector
 # generated_sample = vae.generate(z_sample)
-# vector_to_emoji(generated_sample)
-
-
-
+# print("Generated Sample:", generated_sample)
+#
 # # Encode some input data
 # for i in range(10):# Encode the first 10 samples
-#     mu, log_var = vae.encode(dataset_input_list[i])
-#     print("X:",dataset_input_list[i])
+#     mu, log_var = vae.encode(X[i])
+#     print("X:",X[i])
 #     print("Latent Space Mean:", mu)
 #     print("Latent Space Log Variance:", log_var)
 #
 # # Decode a latent vector
 # decoded_sample = vae.decode(z_sample)
 # print("Decoded Sample:", decoded_sample)
+
+
