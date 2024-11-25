@@ -5,30 +5,25 @@ from src.autoencoders.autoencoder import parse_input
 from src.autoencoders.variationalAutoencoder import VariationalAutoencoder
 from src.models.Optimizer import Adam
 from src.models.ActivationFunction import Tanh
-from src.autoencoders.emojis import emoji_images,emoji_size,emoji_chars,emoji_names,vector_to_emoji
+from src.autoencoders.emojis import emoji_images,vector_to_emoji,NUMBER_OF_EMOJIS
 import pickle
-from src.autoencoders.emojis import emoji_images,emoji_size,emoji_chars,emoji_names
 
 # Example input data (replace with your actual data)
 X = parse_input("./input/font.h")
 
 # Example input data (replace with your actual data)
-emoji_indexes = np.array([0, 3, 4, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 17, 19, 23, 24, 26,
-                          28, 29, 31, 32, 33, 35, 36, 38, 39, 41, 46, 48, 50, 51, 54, 55,
-                          57, 58, 59, 61, 62, 63, 64, 65, 67, 73, 75, 78, 81, 83, 84, 85,
-                          90, 91, 92, 93, 95])
-
+emoji_indexes = np.arange(0,NUMBER_OF_EMOJIS)
 data = np.array(emoji_images)
 dataset_input = data[emoji_indexes]
 dataset_input_list = list(dataset_input)
 
 # Hyperparameters
 latent_dim = 2
-encoder_layers = [400,300,200,20]
-decoder_layers = [20,200,300,400]
+encoder_layers = [400,200]
+decoder_layers = [200,400]
 activation = Tanh(input_range=(0, 1), output_range=(0, 1))
-optimizer1 = Adam(learning_rate=0.01)
-optimizer2 = Adam(learning_rate=0.01)
+optimizer1 = Adam(learning_rate=0.001)
+optimizer2 = Adam(learning_rate=0.001)
 
 # Instantiate the model
 vae = VariationalAutoencoder(
@@ -56,6 +51,9 @@ with open(f"./output/latent_predictions_vae_emojis.csv", "w") as file:
     for latent_prediction in coordinates:
         file.write(",".join(map(str, latent_prediction)) + "\n")
 
+    for i in range(0,len(dataset_input_list)):
+#     vector_to_emoji(dataset_input_list[i])
+        vector_to_emoji(vae.generate(vae.encode(dataset_input_list[i])))
 
 emoji_img_list = []
 emoji_img_coords_list = []

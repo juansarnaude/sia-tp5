@@ -3,13 +3,14 @@ from PIL import Image, ImageDraw, ImageFont
 # List of emojis
 emoji_chars = [
     "😨","😭","😱","😖",
-    "😤","🤬","💀","😎",
-
+    "😤","🤬","💀","😎"
 ]
+# "😨","😭","😱","😖",
+# "😤","🤬","💀","😎",
 
 # Image size
 emoji_size = 20  # Set each emoji size to 20x20
-rows, cols = 5, 6  # 5 rows and 6 columns (with last row having 3 emojis)
+rows, cols = 2,4   # 5 rows and 6 columns (with last row having 3 emojis)
 
 # Calculate total image size
 width, height = cols * emoji_size, rows * emoji_size
