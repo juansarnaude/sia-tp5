@@ -138,7 +138,9 @@ class VariationalAutoencoder:
         mu = encoded[: len(encoded) // 2]
         log_var = encoded[len(encoded) // 2:]
 
-        return mu, log_var
+        z, _ = self.reparameterize(mu, log_var)
+        return z
+
 
     def decode(self, z):
         return self.decoder.feed_forward(z)
