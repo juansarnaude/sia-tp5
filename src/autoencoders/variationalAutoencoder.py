@@ -18,15 +18,15 @@ class VariationalAutoencoder:
             optimizer2,
         )
 
-    def reparameterize(self, mean, log_var):
+    def reparameterize(self, mean, simga):
         epsilon = np.random.normal(size=mean.shape)  # Ensure size matches `mean`
-        std = np.exp(0.5 * log_var)  # Standard deviation
+        std = np.exp(0.5 * simga)  # Standard deviation
         z = mean + std * epsilon
         return z, epsilon
 
-    def loss_function(self, x, reconstructed_x, mu, log_var):
+    def loss_function(self, x, reconstructed_x, mu, simga):
         reconstruction_loss = np.mean(np.square(x - reconstructed_x))
-        kl_loss = -0.5 * np.sum(1 + log_var - np.square(mu) - np.exp(log_var))
+        kl_loss = -0.5 * np.sum(1 + simga - np.square(mu) - np.exp(simga))
         return reconstruction_loss + kl_loss
 
     def train(self, X, epochs=100, batch_size=32):
@@ -41,7 +41,7 @@ class VariationalAutoencoder:
                 batch = X[i:i + batch_size]
 
                 batch_means_list = []
-                batch_log_var_list = []
+                batch_simga_list = []
                 reconstructed_batch = []
 
                 current_z = []
@@ -50,13 +50,13 @@ class VariationalAutoencoder:
                     encoded = self.encoder.feed_forward(x)
 
                     mean = encoded[: len(encoded) // 2]
-                    log_var = encoded[len(encoded) // 2:]
+                    simga = encoded[len(encoded) // 2:]
 
 
                     batch_means_list.append(mean)
-                    batch_log_var_list.append(log_var)
+                    batch_simga_list.append(simga)
 
-                    z, epsilon = self.reparameterize(mean, log_var)
+                    z, epsilon = self.reparameterize(mean, simga)
 
                     current_z.append(z)
 
@@ -64,12 +64,12 @@ class VariationalAutoencoder:
                     reconstructed_batch.append(reconstructed)
 
                 batch_mean = np.mean(batch_means_list)  #TODO THIS MAY BE WRONG
-                batch_log_var = np.mean(batch_log_var_list)
+                batch_simga = np.mean(batch_simga_list)
 
                 reconstructed_batch = np.vstack(reconstructed_batch)
 
                 reconstruction_loss = np.mean(np.square(batch - reconstructed_batch))
-                kl_loss = -0.5 * np.sum(1 + batch_log_var - np.square(batch_mean) - np.exp(batch_log_var))
+                kl_loss = -0.5 * np.sum(1 + batch_simga - np.square(batch_mean) - np.exp(batch_simga))
                 batch_loss = reconstruction_loss + kl_loss
                 total_loss += batch_loss
 
@@ -106,7 +106,7 @@ class VariationalAutoencoder:
                 encoder_reconstruction_gradients_weights, encoder_reconstruction_gradients_biases = self.encoder.backpropagation_vae(encoder_reconstruction_error)
 
                 dL_dm = batch_means_list
-                dL_dv = 0.5 * (np.exp(batch_log_var_list) - 1)
+                dL_dv = 0.5 * (np.exp(batch_simga_list) - 1)
                 encoder_kl_error = np.concatenate((dL_dm, dL_dv), axis=1)
                 encoder_kl_gradients, encoder_kl_biases_gradients = self.encoder.backpropagation_vae(encoder_kl_error)
 
@@ -137,9 +137,9 @@ class VariationalAutoencoder:
         encoded = self.encoder.feed_forward(X)
 
         mu = encoded[: len(encoded) // 2]
-        log_var = encoded[len(encoded) // 2:]
+        simga = encoded[len(encoded) // 2:]
 
-        z, _ = self.reparameterize(mu, log_var)
+        z, _ = self.reparameterize(mu, simga)
         return z
 
 

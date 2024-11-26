@@ -24,8 +24,8 @@ latent_dim = 2
 encoder_layers = [400,200]
 decoder_layers = [200,400]
 activation = Tanh(input_range=(0, 1), output_range=(0, 1))
-optimizer1 = Adam(learning_rate=0.001)
-optimizer2 = Adam(learning_rate=0.001)
+optimizer1 = Adam(learning_rate=0.01)
+optimizer2 = Adam(learning_rate=0.01)
 
 # Instantiate the model
 vae = VariationalAutoencoder(
@@ -38,32 +38,31 @@ vae = VariationalAutoencoder(
 )
 
 # Train the model
-_, total_loss = vae.train(dataset_input_list, epochs=1000, batch_size=1)
+print(len(dataset_input_list))
+_, total_loss = vae.train(dataset_input_list, epochs=1000, batch_size=len(dataset_input_list))
 
 print("Finished Execution")
 print("-------------------------")
 
-# coordinates=[]
-# for emoji in dataset_input_list:
-#     coordinates.append(vae.encode(emoji))
-#
-#
-# with open(f"./output/latent_predictions_vae_emojis.csv", "w") as file:
-#     file.write("x,y\n")
-#     for latent_prediction in coordinates:
-#         file.write(",".join(map(str, latent_prediction)) + "\n")
-#
-#     for i in range(0,len(dataset_input_list)):
-# #     vector_to_emoji(dataset_input_list[i])
-#         vector_to_emoji(vae.generate(vae.encode(dataset_input_list[i])))
+# Saving the coords to show position in the latent space of the encoded emojis
+coordinates=[]
+for emoji in dataset_input_list:
+    coordinates.append(vae.encode(emoji))
 
-for da in dataset_input_list:
-    print(vae.encode(da))
+with open(f"./output/latent_predictions_vae_emojis.csv", "w") as file:
+    file.write("x,y\n")
+    for latent_prediction in coordinates:
+        file.write(",".join(map(str, latent_prediction)) + "\n")
+
+    #for i in range(0,len(dataset_input_list)):
+        #vector_to_emoji(vae.decode(vae.encode(dataset_input_list[i])))
 
 emoji_img_list = []
 emoji_img_coords_list = []
 
-range_min, range_max = -1, 1
+
+# Saving for the plot of the emojis decoded from the latent space
+range_min, range_max = -3, 3
 grid_size = 20
 step_size = (range_max - range_min) / grid_size
 
@@ -86,7 +85,7 @@ with open(output_file, "wb") as f:
 
 print(f"Data saved to {output_file}")
 
-with open("./output/vae_total_loss_through_epochs.csv", mode='w', newline='') as file:
+with open("./output/vae_400_600_200.csv", mode='w', newline='') as file:
     writer = csv.writer(file)
     writer.writerow(["epoch", "total_loss"])
     for epoch, t_l in enumerate(total_loss):
