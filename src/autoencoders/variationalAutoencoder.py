@@ -31,6 +31,7 @@ class VariationalAutoencoder:
 
     def train(self, X, epochs=100, batch_size=32):
         z_list = []
+        total_loss_list = []
 
         for epoch in range(epochs):
             total_loss = 0
@@ -125,9 +126,9 @@ class VariationalAutoencoder:
                 z_list.append(current_z)
 
             print(f"Epoch: {epoch}, Total Loss: {total_loss:.4f}, Reconstruction Loss: {reconstruction_loss:.4f}, KL Loss: {kl_loss:.4f}")
+            total_loss_list.append(total_loss)
 
-
-        return z_list
+        return z_list, total_loss_list
 
     def generate(self, z_sample):
         return self.decoder.feed_forward(z_sample)

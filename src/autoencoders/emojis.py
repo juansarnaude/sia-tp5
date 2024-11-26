@@ -7,7 +7,7 @@ emoji_size = (20, 20)
 emoji_images = []
 
 def load_emoji_images():
-    img = np.asarray(Image.open('D:/ITBA/4-anio/SIA/sia-tp5/input/emojis.png').convert("L"))
+    img = np.asarray(Image.open('./input/emojis.png').convert("L"))
     emojis_per_row = img.shape[1] / emoji_size[1]
     for i in range(NUMBER_OF_EMOJIS):
         y = int((i // emojis_per_row) * emoji_size[0])
