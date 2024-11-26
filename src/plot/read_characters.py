@@ -2,7 +2,7 @@ import numpy as np
 import plotly.graph_objects as go
 
 # Leer el archivo CSV
-with open("./output/characters_matrix_autoencoder.csv", "r") as file:
+with open("./output/new_characters.csv", "r") as file:
     lines = file.readlines()
 
 # Convertir las líneas del archivo en una matriz numérica

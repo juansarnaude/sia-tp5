@@ -3,5 +3,7 @@
     "layers":[20],
     "learning_rate":0.0005,
     "epochs":19300,
-    "batching_size":32
+    "batching_size":32,
+    "optimizer":"adam",
+    "momentum_weight":0.9
 }

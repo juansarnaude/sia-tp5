@@ -45,16 +45,23 @@ if __name__ == "__main__":
         inner_layers = config["layers"]
         epochs = config["epochs"]
         output_file_name = config["output_file_name"]
+        optimizer_str = config["optimizer"]
+        momentum_weight = config["momentum_weight"]
 
         X = parse_input("./input/font.h")
 
         # Create and configure the network
         # Adjusted autoencoder configuration with an input shape of 35
         activation = Tanh(input_range=(0, 1), output_range=(0, 1))  # Tanh works well if your data is normalized between -1 and 1
-        optimizer = Adam(learning_rate=n)  # Lower learning rate for stability
+        
+        optimizer = None
 
-
-        # Layer sizes based on input shape of 35
+        if optimizer_str == "adam":
+            optimizer = Adam(learning_rate=n)  # Lower learning rate for stability
+        elif optimizer_str == "momentum":
+            optimizer = Momentum(learning_rate=n, momentum=momentum_weight)
+        elif optimizer_str == "gradient_descent":
+            optimizer = GradientDescent(learning_rate=n)
 
         # Layer sizes based on input shape of 35
         layer_sizes = [35] + inner_layers + [2]
@@ -100,17 +107,20 @@ if __name__ == "__main__":
             for latent_prediction in latent_predictions:
                 file.write(",".join(map(str, latent_prediction)) + "\n")
 
-        #Ej4 Vamos a hacer un nuevo Character con un punto x,y
+        #Creamos un mapa de representaciones del espacio latente
         decoder=get_decoder(mlp,layers)
 
         decoder_predictions=[]
-        x_y_coordinates=[[0,0.6796087]]
-        for x_y in x_y_coordinates:
-            decoder_predictions.append(zeroOrOne(decoder.predict(x_y)))
 
+        sample_size = 15
+        array = np.linspace(0, 1, sample_size)
+        coordinates = [[[i, j] for j in array] for i in array[::-1]]
+
+        for i in range(sample_size):
+            for j in range(sample_size):
+                decoder_predictions.append(decoder.predict(coordinates[i][j]))
 
         decoder_predictions_matrix = [np.reshape(array, (7, 5)) for array in decoder_predictions]
-
 
         with open(f"./output/new_characters_autoencoder.csv", "w") as file:
             for matrix in decoder_predictions_matrix:
@@ -118,6 +128,20 @@ if __name__ == "__main__":
                 for row in matrix:
                     file.write(",".join(f"{value}" for value in row) + "\n")
 
+        #Ej4 generate new characters
+        decoder_new_predictions=[]
+
+        x_y_coordinates=[[0,0.72],[0.77,0.41],[0.75,0.4]]
+        for x_y in x_y_coordinates:
+            decoder_new_predictions.append(zeroOrOne(decoder.predict(x_y)))
+
+        decoder_new = [np.reshape(array, (7, 5)) for array in decoder_new_predictions]
+
+        with open(f"./output/new_characters.csv", "w") as file:
+            for matrix in decoder_new:
+                # Escribir cada fila de la matriz en el archivo CSV
+                for row in matrix:
+                    file.write(",".join(f"{value}" for value in row) + "\n")
 
         print("Total pixels: ", len(X)*len(X[0]) , " Correct: ", len(X)*len(X[0])-total_pixel_loss, " Incorrect: ",
             total_pixel_loss, " Error %: ", 100*total_pixel_loss/(len(X)*len(X[0])))
