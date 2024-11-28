@@ -1,6 +1,7 @@
 
 from src.models.Layer import Layer
 from src.models.ActivationFunction import ActivationFunction
+from src.utils.noise import salt_and_pepper
 
 import numpy as np
 
@@ -111,12 +112,58 @@ class MultiLayerPerceptron:
                         layer.update_weights(new_weights)
                         layer.update_biases(new_biases)
 
-
                 if epoch % 100 == 0:
                     predictions = np.array([self.feed_forward(x_sample) for x_sample in X])
                     total_loss = np.mean([self.mse(y_true, y_pred) for y_true, y_pred in zip(y, predictions)])
                     print(f"Epoch {epoch}, Average Loss: {total_loss}")
                     file.write(f"{epoch},{total_loss}\n")
+
+    def train_dae(self, X, testing_set, epochs=1000, batch_size=32):
+        with open(f"./output/{self.output_file_name}.csv", "w") as file:
+            file.write("epoch,average_loss\n")
+
+            for epoch in range(epochs):
+                total_loss = 0
+
+                # Agregar ruido a las entradas al inicio de cada época
+                noisy_X = np.array([salt_and_pepper(x, 0.2) for x in X])
+
+                # Mezclar datos con ruido y etiquetas
+                indices = np.arange(len(noisy_X))
+                np.random.shuffle(indices)
+                noisy_X, y = noisy_X[indices], X[indices]  # y debe ser la versión original sin ruido
+
+                for i in range(0, len(noisy_X), batch_size):
+                    batch_noisy_X = noisy_X[i:i + batch_size]
+                    batch_y = y[i:i + batch_size]
+
+                    batch_weight_gradients = [np.zeros_like(layer.get_weights()) for layer in self.layers]
+                    batch_bias_gradients = [np.zeros_like(layer.get_biases()) for layer in self.layers]
+
+                    for x_sample, y_sample in zip(batch_noisy_X, batch_y):
+                        weight_gradients, bias_gradients = self.backpropagation(x_sample, y_sample)
+                        for layer_idx, (w_grad, b_grad) in enumerate(zip(weight_gradients, bias_gradients)):
+                            batch_weight_gradients[layer_idx] += w_grad
+                            batch_bias_gradients[layer_idx] += b_grad
+
+                    for layer_idx in range(len(self.layers)):
+                        batch_weight_gradients[layer_idx] /= len(batch_noisy_X)
+                        batch_bias_gradients[layer_idx] /= len(batch_noisy_X)
+
+                    for layer_idx, layer in enumerate(self.layers):
+                        new_weights = self.optimizer.update(layer.get_weights(), batch_weight_gradients[layer_idx],
+                                                            f"w{layer_idx}")
+                        new_biases = self.optimizer.update(layer.get_biases(), batch_bias_gradients[layer_idx],
+                                                        f"b{layer_idx}")
+                        layer.update_weights(new_weights)
+                        layer.update_biases(new_biases)
+
+                if epoch % 100 == 0:
+                    predictions = np.array([self.feed_forward(x_sample) for x_sample in testing_set])
+                    total_loss = np.mean([self.mse(y_true, y_pred) for y_true, y_pred in zip(X, predictions)])
+                    print(f"Epoch {epoch}, Average Loss: {total_loss}")
+                    file.write(f"{epoch},{total_loss}\n")
+
 
     def update_weights(self, wg, bg):
         weight_gradients = wg

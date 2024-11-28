@@ -2,11 +2,11 @@ import numpy as np
 import plotly.graph_objects as go
 
 # Leer el archivo CSV
-with open("./output/new_characters.csv", "r") as file:
+with open("./output/characters_matrix_dae.csv", "r") as file:
     lines = file.readlines()
 
 # Convertir las líneas del archivo en una matriz numérica
-data = np.array([list(map(int, line.strip().split(","))) for line in lines])
+data = np.array([list(map(float, line.strip().split(","))) for line in lines])
 
 # Separar en matrices de 7x5
 matrices = [data[i:i + 7] for i in range(0, len(data), 7)]
