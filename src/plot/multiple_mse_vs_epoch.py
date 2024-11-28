@@ -3,19 +3,16 @@ import plotly.graph_objects as go
 
 # Nombres de los archivos .csv
 file_names = [
-    "./output/mse_vs_epoch_1.csv",
-    "./output/mse_vs_epoch_2.csv",
-    "./output/mse_vs_epoch_3.csv",
-    "./output/mse_vs_epoch_4.csv",
-    "./output/mse_vs_epoch_5.csv"
+    "./output/mse_vs_epoch_02_01.csv",
+    "./output/mse_vs_epoch_01_01.csv",
 ]
 
 # Crear una figura de Plotly
 fig = go.Figure()
 
 # Colores y nombres de referencia para cada archivo
-colors = ['red', 'blue', 'green', 'orange', 'purple']
-labels = ['[20]', '[20,20]', '[20,20,20]', '[20,20,20,20]', '[20,20,20,20,20]']
+colors = ['red', 'blue']
+labels = ['factor de error de entrenamiento 0.2', 'factor de error de entrenamiento 0.1']
 
 # Iterar sobre los archivos y agregar una línea por archivo
 for file_name, color, label in zip(file_names, colors, labels):
@@ -33,7 +30,7 @@ for file_name, color, label in zip(file_names, colors, labels):
 
 # Configurar el diseño del gráfico
 fig.update_layout(
-    title="Comparación de MSE vs Épocas para distinta cantidad de layers",
+    title="Comparación de MSE vs Épocas para distinta testing set con factor de error de 0.1",
     xaxis_title="Épocas",
     yaxis_title="MSE (Mean Square Error)",
     legend_title="Datasets",

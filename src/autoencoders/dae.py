@@ -62,7 +62,7 @@ if __name__ == "__main__":
     layers = layer_sizes + layer_sizes[::-1][1:]  # Symmetric architecture, avoid duplicating the bottleneck layer
 
     # Create and train the autoencoder
-    mlp = MultiLayerPerceptron(layers, activation, optimizer, "mse_vs_epoch")
+    mlp = MultiLayerPerceptron(layers, activation, optimizer, "mse_vs_epoch_02_02")
     mlp.train_dae(X, testing_set, epochs=13000, batch_size=32)  # Train with batch size of 32 for stability and efficiency
 
     predictions = []
